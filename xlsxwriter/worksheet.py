@@ -8,6 +8,7 @@
 
 # Standard packages.
 import datetime
+import math
 import os
 import re
 import tempfile
@@ -601,8 +602,11 @@ class Worksheet(xmlwriter.XMLwriter):
                 if isnan(number):
                     return self._write_formula(row, col, '#NUM!', cell_format,
                                                '#NUM!')
-                elif isinf(number):
+                elif number == math.inf:
                     return self._write_formula(row, col, '1/0', cell_format,
+                                               '#DIV/0!')
+                elif number == -math.inf:
+                    return self._write_formula(row, col, '-1/0', cell_format,
                                                '#DIV/0!')
             else:
                 raise TypeError(
@@ -2155,6 +2159,7 @@ class Worksheet(xmlwriter.XMLwriter):
             'error_message': True,
             'error_type': True,
             'other_cells': True,
+            'multi_range': True,
         }
 
         # Check for valid input parameters.
@@ -2337,6 +2342,10 @@ class Worksheet(xmlwriter.XMLwriter):
         # A (for now) undocumented parameter to pass additional cell ranges.
         if 'other_cells' in options:
             options['cells'].extend(options['other_cells'])
+
+        # Override with user defined multiple range if provided.
+        if 'multi_range' in options:
+            options['multi_range'] = options['multi_range'].replace('$', '')
 
         # Store the validation information until we close the worksheet.
         self.validations.append(options)
@@ -6899,6 +6908,9 @@ class Worksheet(xmlwriter.XMLwriter):
                 (col_first, col_last) = (col_last, col_first)
 
             sqref += xl_range(row_first, col_first, row_last, col_last)
+
+        if options.get('multi_range'):
+            sqref = options['multi_range']
 
         if options['validate'] != 'none':
             attributes.append(('type', options['validate']))

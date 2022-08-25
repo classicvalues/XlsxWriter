@@ -73,7 +73,7 @@ The rules for handling data in ``write()`` are as follows:
 
 Strings are then handled as follows:
 
-* Strings that start with ``"="`` are take to match a formula and are written
+* Strings that start with ``"="`` are assumed to match a formula and are written
   using :func:`write_formula()`. This can be overridden, see below.
 
 * Strings that match supported URL types are written using
@@ -291,7 +291,8 @@ double-precision floating point. This means that, in most cases, the maximum
 number of digits that can be stored in Excel without losing precision is 15.
 
 .. note::
-   NAN and INF are not supported and will raise a TypeError exception.
+   NAN and INF are not supported and will raise a TypeError exception unless
+   the ``nan_inf_to_errors`` Workbook() option is used.
 
 The ``cell_format`` parameter is used to apply formatting to the cell. This
 parameter is optional but when present is should be a valid
